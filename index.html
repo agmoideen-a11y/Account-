@@ -4,43 +4,35 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>വരവ് ചിലവ് എൻട്രി</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #eef2f3; padding: 20px; display: flex; justify-content: center; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { color: #2c3e50; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #27ae60; padding-bottom: 10px; }
-        label { font-weight: bold; display: block; margin-top: 15px; color: #34495e; }
-        input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 25px; transition: 0.3s; }
-        button:hover { background: #219150; }
+        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
+        .form-container { background: white; padding: 20px; border-radius: 12px; max-width: 400px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1a5d1a; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-<div class="card">
+<div class="form-container">
     <h2>വരവ് ചിലവ് എൻട്രി</h2>
     <form id="entryForm">
-        <label>തീയതി (DD-MM-YYYY)</label>
-        <input type="text" id="date" placeholder="ഉദാ: 27-04-2026" required>
-        <label>വൗച്ചർ നമ്പർ</label>
-        <input type="text" id="voucher" placeholder="V-101">
-        <label>വിവരണം</label>
-        <input type="text" id="particulars" placeholder="വിവരണം നൽകുക" required>
-        <label>വരവ് (Income)</label>
+        <input type="text" id="date" placeholder="തീയതി (DD-MM-YYYY)" required>
+        <input type="text" id="voucher" placeholder="വൗച്ചർ നമ്പർ">
+        <input type="text" id="particulars" placeholder="വിവരണം" required>
+        <label>വരവ്:</label>
         <input type="number" id="income" value="0" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'">
-        <label>ചിലവ് (Expense)</label>
+        <label>ചിലവ്:</label>
         <input type="number" id="expense" value="0" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'">
         <button type="submit" id="submitBtn">സേവ് ചെയ്യുക</button>
     </form>
 </div>
 <script>
-    // താഴെ നിങ്ങളുടെ ഗൂഗിൾ ആപ്പ് സ്ക്രിപ്റ്റ് ലിങ്ക് നൽകുക
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyEY2zrhXWtkUUlJZtulyXr86DBBfn-LI_i2aNxwCGK4G1vtMIeBmkcc2_9gUEI42L9/exec';
     document.getElementById('entryForm').addEventListener('submit', e => {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
         btn.disabled = true; btn.innerText = "അയക്കുന്നു...";
-        const params = ?date=${encodeURIComponent(document.getElementById('date').value)}&voucher=${encodeURIComponent(document.getElementById('voucher').value)}&particulars=${encodeURIComponent(document.getElementById('particulars').value)}&income=${document.getElementById('income').value}&expense=${document.getElementById('expense').value};
-        fetch(scriptURL + params, { method: 'POST', mode: 'no-cors' })
-        .then(() => { alert("വിജയകരമായി സേവ് ചെയ്തു!"); location.reload(); })
-        .catch(() => { alert("പിശക്!"); btn.disabled = false; });
+        fetch(scriptURL + ?date=${encodeURIComponent(document.getElementById('date').value)}&voucher=${encodeURIComponent(document.getElementById('voucher').value)}&particulars=${encodeURIComponent(document.getElementById('particulars').value)}&income=${document.getElementById('income').value}&expense=${document.getElementById('expense').value}, { method: 'POST', mode: 'no-cors' })
+        .then(() => { alert("സേവ് ചെയ്തു!"); location.reload(); });
     });
 </script>
 </body>
