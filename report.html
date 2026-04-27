@@ -2,38 +2,70 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>വരവ് ചിലവ് എൻട്രി</title>
+    <title>വരവ് ചിലവ് റിപ്പോർട്ട്</title>
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
-        .form-container { background: white; padding: 20px; border-radius: 12px; max-width: 400px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #1a5d1a; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        body { font-family: sans-serif; text-align: center; background: #fff; padding: 10px; }
+        .filter-box { background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #ddd; max-width: 400px; margin: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #f2f2f2; }
+        .btn { padding: 10px; margin: 5px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; width: 160px; }
+        .blue { background: #34495e; } .green { background: #27ae60; } .red { background: #c0392b; } .show-btn { background: #2980b9; width: 100px; }
+        @media print { .filter-box, .no-print { display: none; } table { width: 100%; font-size: 12px; } }
     </style>
 </head>
 <body>
-<div class="form-container">
-    <h2>വരവ് ചിലവ് എൻട്രി</h2>
-    <form id="entryForm">
-        <input type="text" id="date" placeholder="തീയതി (DD-MM-YYYY)" required>
-        <input type="text" id="voucher" placeholder="വൗച്ചർ നമ്പർ">
-        <input type="text" id="particulars" placeholder="വിവരണം" required>
-        <label>വരവ്:</label>
-        <input type="number" id="income" value="0" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'">
-        <label>ചിലവ്:</label>
-        <input type="number" id="expense" value="0" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'">
-        <button type="submit" id="submitBtn">സേവ് ചെയ്യുക</button>
-    </form>
-</div>
+    <h2>വരവ് ചിലവ് റിപ്പോർട്ട്</h2>
+    <div class="filter-box">
+        <input type="text" id="fromDate" placeholder="തീയതി മുതൽ (DD-MM-YYYY)">
+        <input type="text" id="toDate" placeholder="തീയതി വരെ (DD-MM-YYYY)">
+        <button class="btn show-btn" onclick="applyFilters()">കാണുക</button><br><br>
+        <button class="btn blue" onclick="window.print()">മൊത്തം പ്രിന്റ്</button>
+        <button class="btn green" onclick="printOnly('income')">വരവ് മാത്രം പ്രിന്റ്</button>
+        <button class="btn red" onclick="printOnly('expense')">ചിലവ് മാത്രം പ്രിന്റ്</button>
+    </div>
+
+    <p id="loadingMsg">വിവരങ്ങൾ ശേഖരിക്കുന്നു...</p>
+
+    <table id="reportTable" style="display:none;">
+        <thead>
+            <tr><th>തീയതി</th><th>വിവരണം</th><th id="hInc">വരവ്</th><th id="hExp">ചിലവ്</th></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyEY2zrhXWtkUUlJZtulyXr86DBBfn-LI_i2aNxwCGK4G1vtMIeBmkcc2_9gUEI42L9/exec';
-    document.getElementById('entryForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true; btn.innerText = "അയക്കുന്നു...";
-        fetch(scriptURL + ?date=${encodeURIComponent(document.getElementById('date').value)}&voucher=${encodeURIComponent(document.getElementById('voucher').value)}&particulars=${encodeURIComponent(document.getElementById('particulars').value)}&income=${document.getElementById('income').value}&expense=${document.getElementById('expense').value}, { method: 'POST', mode: 'no-cors' })
-        .then(() => { alert("സേവ് ചെയ്തു!"); location.reload(); });
-    });
+    let allData = [];
+
+    async function loadData() {
+        try {
+            const res = await fetch(scriptURL);
+            allData = await res.json();
+            document.getElementById('loadingMsg').style.display = 'none';
+            displayData(allData);
+        } catch (e) { document.getElementById('loadingMsg').innerText = "ലിങ്ക് പിശക്!"; }
+    }
+
+    function displayData(data) {
+        const body = document.getElementById('tableBody');
+        body.innerHTML = "";
+        data.forEach(row => {
+            body.innerHTML += <tr><td>${row.date}</td><td>${row.particulars}</td><td class="cInc">${row.income}</td><td class="cExp">${row.expense}</td></tr>;
+        });
+        document.getElementById('reportTable').style.display = 'table';
+    }
+
+    function printOnly(type) {
+        const incs = document.querySelectorAll('.cInc, #hInc');
+        const exps = document.querySelectorAll('.cExp, #hExp');
+        incs.forEach(el => el.style.display = type === 'expense' ? 'none' : '');
+        exps.forEach(el => el.style.display = type === 'income' ? 'none' : '');
+        window.print();
+        location.reload();
+    }
+
+    loadData();
 </script>
 </body>
 </html>
