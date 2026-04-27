@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>റിപ്പോർട്ട്</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .no-print { text-align: center; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #444; padding: 10px; text-align: left; }
+        th { background: #eee; }
+        .btn { padding: 10px 20px; margin: 5px; cursor: pointer; border: none; border-radius: 5px; color: white; font-weight: bold; }
+        .blue { background: #2c3e50; } .green { background: #27ae60; } .red { background: #e74c3c; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">വരവ് ചിലവ് റിപ്പോർട്ട്</h2>
+    <div class="no-print">
+        <button class="btn blue" onclick="window.print()">പ്രിന്റ് ചെയ്യുക</button>
+        <button class="btn green" onclick="printPart('income')">വരവ് മാത്രം</button>
+        <button class="btn red" onclick="printPart('expense')">ചിലവ് മാത്രം</button>
+    </div>
+    <p id="msg" style="text-align:center;">വിവരങ്ങൾ ലോഡ് ചെയ്യുന്നു...</p>
+    <table id="reportTable" style="display:none;">
+        <thead>
+            <tr><th>തീയതി</th><th>വിവരണം</th><th class="inc">വരവ്</th><th class="exp">ചിലവ്</th></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+<script>
+    // താഴെ നിങ്ങളുടെ ഗൂഗിൾ ആപ്പ് സ്ക്രിപ്റ്റ് ലിങ്ക് നൽകുക
+    const scriptURL = 'ഇവിടെ_നിങ്ങളുടെ_പുതിയ_Apps_Script_URL_നൽകുക';
+    async function loadData() {
+        try {
+            const res = await fetch(scriptURL);
+            const data = await res.json();
+            const body = document.getElementById('tableBody');
+            data.forEach(row => {
+                body.innerHTML += <tr><td>${row.date}</td><td>${row.particulars}</td><td class="inc">${row.income}</td><td class="exp">${row.expense}</td></tr>;
+            });
+            document.getElementById('msg').style.display = 'none';
+            document.getElementById('reportTable').style.display = 'table';
+        } catch (e) { document.getElementById('msg').innerText = "പിശക്!"; }
+    }
+    function printPart(type) {
+        document.querySelectorAll('.inc').forEach(el => el.style.display = type === 'expense' ? 'none' : '');
+        document.querySelectorAll('.exp').forEach(el => el.style.display = type === 'income' ? 'none' : '');
+        window.print();
+        setTimeout(() => location.reload(), 500);
+    }
+    loadData();
+</script>
+</body>
+</html>
